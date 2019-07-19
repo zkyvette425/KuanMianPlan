@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace App.Component
 {
@@ -61,10 +62,46 @@ namespace App.Component
             return _cache[key];
         }
 
-        public TValue Get(Func<TKey, TValue> where, TKey key)
+        /// <summary>
+        /// 获取所有指定条件的键
+        /// </summary>
+        /// <param name="match">指定条件</param>
+        /// <returns>Key集合</returns>
+        public List<TKey> FindKeys(Func<TKey, bool> match)
         {
-            return where(key);
+            return _cache.Keys.ToList().FindAll(t => match(t));
         }
+
+        /// <summary>
+        /// 获取所有的键
+        /// </summary>
+        /// <returns>Key集合</returns>
+        public List<TKey> FindKeys()
+        {
+            return _cache.Keys.ToList();
+        }
+
+        /// <summary>
+        /// 获取所有指定条件的值
+        /// </summary>
+        /// <param name="match">指定条件</param>
+        /// <returns>Value集合</returns>
+        public List<TValue> FindValues(Func<TKey, bool> match)
+        {
+            var key = FindKeys(match);
+            return key.Select(p => _cache[p]).ToList();
+        }
+
+        /// <summary>
+        /// 获取所有的值
+        /// </summary>
+        /// <returns>Value集合</returns>
+        public List<TValue> FindValues()
+        {
+            return _cache.Values.ToList();
+        }
+
+        public List<>
         #endregion
 
     }
