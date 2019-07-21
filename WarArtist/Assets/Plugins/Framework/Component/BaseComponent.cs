@@ -34,19 +34,16 @@ namespace App.Component
         /// </summary>
         public string Id => _id;
 
-        #endregion
-
-        #region Public funcs
-
         /// <summary>
-        /// 设置组件标识
+        /// 设置或获取组件标识
         /// </summary>
-        /// <param name="tag"></param>
-        public void SetTag(string tag)
+        public string Tag
         {
-            _tag = tag;
+            get => _tag;
+            set => _tag = value;
         }
 
         #endregion
+
     }
 }
