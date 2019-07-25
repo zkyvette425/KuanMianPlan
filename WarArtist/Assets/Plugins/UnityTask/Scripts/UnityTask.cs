@@ -67,7 +67,7 @@ namespace UnityEngine.TaskExtension
         public bool IsCanceled => _isCanceled;
 
         #endregion
-
+         
         #region public functions
 
         /// <summary>
@@ -473,7 +473,7 @@ namespace UnityEngine.TaskExtension
                 {
                     uTcs.SetException(new AggregateException(exceptions));
                 }
-                else if (taskArray.Any(p=>p.IsFaulted))
+                else if (taskArray.Any(p=>p.IsCanceled))
                 {
                     uTcs.SetCanceled();
                 }

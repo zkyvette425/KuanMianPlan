@@ -4,8 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
+#if UNITY_TASK_EDITOR
+using UnityEditor;
+#endif
+
 namespace UnityEngine.TaskExtension
 {
+#if UNITY_TASK_EDITOR
+    [InitializeOnLoad]
+#endif
     /// <summary>
     /// 表示一个处理将任务排队到Unity主线程中的低级工作的对象。
     /// </summary>
@@ -15,7 +22,7 @@ namespace UnityEngine.TaskExtension
 
         private static SynchronizationContext _context;             //同步上下文
         private static bool _isExit;
-        private static readonly Dictionary<string,IEnumeratorTaskStruct> _enumeratorDictionary = new Dictionary<string, IEnumeratorTaskStruct>();
+        private static readonly Dictionary<string, IEnumeratorTaskStruct> _enumeratorDictionary = new Dictionary<string, IEnumeratorTaskStruct>();
 
         #endregion
 
@@ -28,7 +35,7 @@ namespace UnityEngine.TaskExtension
 #endif
         public static void Init()
         {
-            _context = new SynchronizationContext();
+            _context = new UnitySynchronizationContext();
             _isExit = false;
             ThreadPool.QueueUserWorkItem(a =>
             {
@@ -37,9 +44,11 @@ namespace UnityEngine.TaskExtension
                     Thread.Sleep(20);
                     _context.Send(b =>
                     {
+
                         for (int i = 0; i < _enumeratorDictionary.Count; i++)
                         {
                             var item = _enumeratorDictionary.ElementAt(i);
+
                             if (item.Value.IsSuspend)
                             {
                                 continue;
@@ -88,10 +97,12 @@ namespace UnityEngine.TaskExtension
         /// <param name="completeCallback">callback</param>
         /// <returns></returns>
         public static string Post(IEnumerator action, Action<object> completeCallback)
-        {     
+        {
             IEnumeratorTaskStruct task = new IEnumeratorTaskStruct()
             {
-                IsSuspend = false, IEnumeratorObject = action, Callback = completeCallback
+                IsSuspend = false,
+                IEnumeratorObject = action,
+                Callback = completeCallback
             };
             var hashCode = task.GetHashCode().ToString();
             _enumeratorDictionary[hashCode] = task;
@@ -104,7 +115,7 @@ namespace UnityEngine.TaskExtension
         /// <param name="action">action</param>
         public static void Post(Action action)
         {
-            _context.Post(p=> action(),null);
+            _context.Post(p => action(), null);
         }
 
 

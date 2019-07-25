@@ -3,10 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace UnityEngine.TaskExtension
 {
@@ -349,10 +347,16 @@ namespace UnityEngine.TaskExtension
             {
                 uTcs.TrySetResult(tasks);
             }
-            var results = tasks.Select(p => p.ContinueWith(t=> t)).ToList();
-            if (results.Count == count)
+            foreach (var task in tasks)
             {
-                uTcs.TrySetResult(tasks);
+                task.ContinueWith(t =>
+                {
+                    count--;
+                    if (count == 0)
+                    {
+                        uTcs.TrySetResult(tasks);
+                    }
+                });
             }
             return uTcs.Task.ContinueWith<TResult>(t => continuation(t.Result));
         }
@@ -384,10 +388,16 @@ namespace UnityEngine.TaskExtension
             {
                 uTcs.TrySetResult(tasks);
             }
-            var results = tasks.Select(p => p.ContinueWith(t => t)).ToList();
-            if (results.Count == count)
+            foreach (var task in tasks)
             {
-                uTcs.TrySetResult(tasks);
+                task.ContinueWith(t =>
+                {
+                    count--;
+                    if (count == 0)
+                    {
+                        uTcs.TrySetResult(tasks);
+                    }
+                });
             }
             return uTcs.Task.ContinueWith(t => continuation(t.Result));
         }
@@ -419,10 +429,17 @@ namespace UnityEngine.TaskExtension
             {
                 continuation(tasks);
             }
-            var results = tasks.Select(p => p.ContinueWith(t => t)).ToList();
-            if (results.Count == count)
+
+            foreach (var task in tasks)
             {
-                continuation(tasks);
+                task.ContinueWith(t =>
+                {
+                    count--;
+                    if (count == 0)
+                    {
+                        continuation(tasks);
+                    }
+                });
             }
         }
 
